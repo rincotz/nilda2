@@ -15,7 +15,7 @@ const PersonalInfo = props => {
   const [state, setState] = useState({
     atividade: props.user.atividade || '',
     nome: props.user.nome || '',
-    sexo: props.user.sexo || '',
+    genero: props.user.genero || '',
     nascimento: props.user.nascimento || '',
     cpf: props.user.cpf || '',
     email: props.user.email || '',
@@ -72,9 +72,9 @@ const PersonalInfo = props => {
         select
         variant='outlined'
         onChange={e => onChange(e)}
-        name='sexo'
-        label='sexo'
-        value={state.sexo || ''}
+        name='genero'
+        label='genero'
+        value={state.genero || ''}
       >
         <MenuItem
           disabled

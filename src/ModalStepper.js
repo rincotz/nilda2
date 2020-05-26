@@ -1,6 +1,14 @@
-import React, { useState, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
-import { nextStep, previousStep, stageUser, addPic, addGeopoint, addUser, disableNext, enableNext } from "./store"
+import {
+  nextStep,
+  previousStep,
+  stageUser,
+  addPic,
+  addGeopoint,
+  addUser,
+  addWorker
+} from "./store"
 import { makeStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
 import MobileStepper from "@material-ui/core/MobileStepper"
@@ -28,7 +36,6 @@ const useStyles = makeStyles((theme) => ({
 
 const ModalStepper = props => {
   const classes = useStyles()
-  const [open, setOpen] = useState(true)
   const formSteps = [
     <PhoneStep {...props} />,
     <PersonalInfo {...props} />,
@@ -59,8 +66,8 @@ const ModalStepper = props => {
   return (
     <div className={classes.paper}>
       <Modal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={props.open}
+        onClose={() => props.close()}
         aria-labelledby='sign-in-modal'
       >
         <Fragment>
@@ -83,12 +90,11 @@ const ModalStepper = props => {
 const mapDispatchToProps = dispatch => ({
   nextStep: () => dispatch(nextStep()),
   previousStep: () => dispatch(previousStep()),
-  disableNext: () => dispatch(disableNext()),
-  enableNext: () => dispatch(enableNext()),
   stageUser: user => dispatch(stageUser(user)),
   addPic: user => dispatch(addPic(user)),
   addGeopoint: user => dispatch(addGeopoint(user)),
-  addUser: user => dispatch(addUser(user))
+  addUser: user => dispatch(addUser(user)),
+  addWorker: worker => dispatch(addWorker(worker))
 })
 
 const mapStateToProps = state => ({

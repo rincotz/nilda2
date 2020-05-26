@@ -6,17 +6,17 @@ import validator from "./validator";
 
 const HirerForm = props => {
   const [state, setState] = useState({
-    valor: props.user.valor || '',
     frequencia: props.user.frequencia || '',
     tipo: props.user.tipo || '',
     comodos: props.user.comodos || '',
     hora: props.user.hora || '',
     min: props.user.min || '',
     periodo: props.user.periodo || '',
-    dia: props.user.dia || ''
+    dia: props.user.dia || '',
+    dia2: props.user.dia2 || ''
   })
   const onChange = e => setState({ ...state, [e.target.name]: e.target.value })
-  const formComplete = state.valor && !validator.valor(state.valor) && state.frequencia && state.tipo && state.comodos > 0 && state.hora && state.periodo && state.dia
+  const formComplete = (state.frequencia === 8 && state.dia2 && state.tipo && state.comodos > 0 && state.hora && state.periodo && state.dia) || (state.frequencia !== 8 && state.frequencia && state.tipo && state.comodos > 0 && state.hora && state.periodo && state.dia)
   const send = () => {
     if (formComplete) {
       props.addUser({ ...props.user, ...state })
@@ -25,15 +25,6 @@ const HirerForm = props => {
   }
   return (
     <Fragment>
-      <TextField
-        error={!!validator.valor(state.valor)}
-        helperText={validator.valor(state.valor)}
-        variant='outlined'
-        onChange={e => onChange(e)}
-        name='valor'
-        label='valor'
-        value={state.valor || ''}
-      />
       <TextField
         select
         variant='outlined'
@@ -48,19 +39,19 @@ const HirerForm = props => {
         >Selecione uma opção:
         </MenuItem>
         <MenuItem
-          value='8'
+          value={8}
         >2x semana
         </MenuItem>
         <MenuItem
-          value='4'
+          value={4}
         >1x semana
         </MenuItem>
         <MenuItem
-          value='2'
+          value={2}
         >2x mês
         </MenuItem>
         <MenuItem
-          value='1'
+          value={1}
         >1x mês
         </MenuItem>
       </TextField>
@@ -176,10 +167,28 @@ const HirerForm = props => {
             </MenuItem>
           ))}
       </TextField>
+      <TextField
+        disabled={state.frequencia !== 8}
+        select
+        variant='outlined'
+        onChange={e => onChange(e)}
+        name='dia2'
+        label='dia2'
+        value={state.dia2 || ''}
+      >
+        {[['segunda', 'seg'], ['terça', 'ter'], ['quarta', 'qua'], ['quinta', 'qui'], ['sexta', 'sex'], ['sábado', 'sab'], ['domingo', 'dom']]
+          .map((d, i) => (
+            <MenuItem
+              key={i}
+              value={d[1]}
+            >{d[0]}
+            </MenuItem>
+          ))}
+      </TextField>
       <Button
         variant='outlined'
         onClick={() => props.previousStep()}
-      >avançar
+      >voltar
       </Button>
       <Button
         disabled={!formComplete}
