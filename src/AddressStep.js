@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from "react"
+import PropTypes from 'prop-types'
 import { ZipInput } from "./masks"
 import validator from "./validator"
 import TextField from "@material-ui/core/TextField"
 import MenuItem from "@material-ui/core/MenuItem"
 import Button from "@material-ui/core/Button"
 
-const AddressForm = props => {
+const AddressStep = props => {
   const [state, setState] = useState({
     rua: props.user.rua || '',
     numero: props.user.numero || '',
@@ -116,9 +117,9 @@ const AddressForm = props => {
         label='estado'
         value={state.estado || ''}
       >
-        {estados.map((estado, i) => (
+        {estados.map((estado, index) => (
           <MenuItem
-            key={i}
+            key={index}
             value={estado[0]}
           >
             {estado[1]}
@@ -134,9 +135,9 @@ const AddressForm = props => {
         label='cidade'
         value={state.cidade || ''}
       >
-        {cidades[state.estado].map((cidade, i) => (
+        {cidades[state.estado].map((cidade, index) => (
           <MenuItem
-            key={i}
+            key={index}
             value={cidade}
           >
             {cidade}
@@ -158,4 +159,24 @@ const AddressForm = props => {
   )
 }
 
-export default AddressForm
+// AddressStep.propTypes = {
+//   previousStep: PropTypes.func.isRequired,
+//   nextStep: PropTypes.func.isRequired,
+//   stageUser: PropTypes.func.isRequired,
+//   addGeopoint: PropTypes.func.isRequired,
+//   step: PropTypes.number.isRequired,
+//   user: PropTypes.exact({
+//     uid: PropTypes.string.isRequired,
+//     telefone: PropTypes.string.isRequired,
+//     atividade: PropTypes.string.isRequired,
+//     nome: PropTypes.string.isRequired,
+//     genero: PropTypes.string.isRequired,
+//     nascimentoDDMMAAAA: PropTypes.string.isRequired,
+//     cpf: PropTypes.string.isRequired,
+//     email: PropTypes.string.isRequired,
+//     senha: PropTypes.string.isRequired,
+//     foto: PropTypes.string,
+//   }).isRequired
+// }
+
+export default AddressStep

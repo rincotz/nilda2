@@ -7,8 +7,9 @@ import FormHelperText from "@material-ui/core/FormHelperText"
 import Button from "@material-ui/core/Button"
 import validator from "./validator"
 import { CnpjInput } from './masks'
+import PropTypes from "prop-types";
 
-const WorkerForm = props => {
+const WorkerStep = props => {
   const [state, setState] = useState({
     cnpj: props.user.cnpj || '',
     ferias: false,
@@ -172,4 +173,30 @@ const WorkerForm = props => {
   )
 }
 
-export default WorkerForm
+// WorkerStep.propTypes = {
+//   previousStep: PropTypes.func.isRequired,
+//   nextStep: PropTypes.func.isRequired,
+//   stageUser: PropTypes.func.isRequired,
+//   addWorker: PropTypes.func.isRequired,
+//   user: PropTypes.exact({
+//     uid: PropTypes.string.isRequired,
+//     telefone: PropTypes.string.isRequired,
+//     atividade: PropTypes.string.isRequired,
+//     nome: PropTypes.string.isRequired,
+//     genero: PropTypes.string.isRequired,
+//     nascimentoDDMMAAAA: PropTypes.string.isRequired,
+//     cpf: PropTypes.string.isRequired,
+//     email: PropTypes.string.isRequired,
+//     senha: PropTypes.string.isRequired,
+//     foto: PropTypes.string,
+//     rua: PropTypes.string.isRequired,
+//     numero: PropTypes.string.isRequired,
+//     complemento: PropTypes.string,
+//     bairro: PropTypes.string.isRequired,
+//     cep: PropTypes.string.isRequired,
+//     cidade: PropTypes.string.isRequired,
+//     estado: PropTypes.string.isRequired
+//   }).isRequired
+// }
+
+export default WorkerStep

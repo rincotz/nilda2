@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from "react-redux"
 import ModalStepper from "./ModalStepper"
-import FindNearYou from "./FindNearYou"
 import Login from './Login'
-import { authenticate, logout, setUser } from './store'
+import { authenticate, logout } from './store'
 import Button from "@material-ui/core/Button"
 
 const Home = props => {
@@ -12,8 +12,16 @@ const Home = props => {
 
   return (
     <div>
-      <Login open={loginOpen} close={() => setLoginOpen(false)} authenticate={props.authenticate} user={props.user} />
-      <ModalStepper user={props.user} close={() => setSignInOpen(false)} open={signInOpen} />
+      <Login
+        open={loginOpen}
+        close={() => setLoginOpen(false)}
+        authenticate={props.authenticate} user={props.user}
+      />
+      <ModalStepper
+        user={props.user}
+        close={() => setSignInOpen(false)}
+        open={signInOpen}
+      />
       <Button
         variant='outlined'
         onClick={() => props.user.uid ? props.logout() : setLoginOpen(true)}
@@ -44,5 +52,13 @@ const mapDispatchToProps = dispatch => ({
 const mapStateToProps = state => ({
   user: state.user
 })
+
+// Home.propTypes = {
+//   authenticate: PropTypes.func.isRequired,
+//   logout: PropTypes.func.isRequired,
+//   user: PropTypes.exact({
+//     uid: PropTypes.string
+//   }).isRequired
+// }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home)

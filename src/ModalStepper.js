@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import {
   nextStep,
@@ -6,8 +7,9 @@ import {
   stageUser,
   addPic,
   addGeopoint,
-  addUser,
-  addWorker
+  addHirer,
+  addWorker,
+  getWorkers
 } from "./store"
 import { makeStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
@@ -16,11 +18,11 @@ import Button from "@material-ui/core/Button"
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import PhoneStep from "./PhoneStep";
-import PersonalInfo from "./PersonalInfo";
-import ProfilePic from "./ProfilePic";
-import AddressForm from "./AddressForm";
-import HirerForm from "./HirerForm";
-import WorkerForm from "./WorkerForm";
+import PersonalInfoStep from "./PersonalInfoStep";
+import ProfilePic from "./ProfilePicStep";
+import AddressStep from "./AddressStep";
+import HirerStep from "./HirerStep";
+import WorkerStep from "./WorkerStep";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -38,10 +40,10 @@ const ModalStepper = props => {
   const classes = useStyles()
   const formSteps = [
     <PhoneStep {...props} />,
-    <PersonalInfo {...props} />,
+    <PersonalInfoStep {...props} />,
     <ProfilePic {...props} />,
-    <AddressForm {...props} />,
-    props.user.atividade === 'contratante' ? <HirerForm {...props} /> : <WorkerForm {...props} />
+    <AddressStep {...props} />,
+    props.user.atividade === 'contratante' ? <HirerStep {...props} /> : <WorkerStep {...props} />
   ]
   const nextButton = (
     <Button
@@ -90,11 +92,12 @@ const ModalStepper = props => {
 const mapDispatchToProps = dispatch => ({
   nextStep: () => dispatch(nextStep()),
   previousStep: () => dispatch(previousStep()),
-  stageUser: user => dispatch(stageUser(user)),
-  addPic: user => dispatch(addPic(user)),
-  addGeopoint: user => dispatch(addGeopoint(user)),
-  addUser: user => dispatch(addUser(user)),
-  addWorker: worker => dispatch(addWorker(worker))
+  stageUser: userObject => dispatch(stageUser(userObject)),
+  addPic: userObject => dispatch(addPic(userObject)),
+  addGeopoint: userObject => dispatch(addGeopoint(userObject)),
+  addHirer: userObject => dispatch(addHirer(userObject)),
+  addWorker: userObject => dispatch(addWorker(userObject)),
+  getWorkers: userObject => dispatch(getWorkers(userObject))
 })
 
 const mapStateToProps = state => ({
@@ -102,5 +105,22 @@ const mapStateToProps = state => ({
   isNextDisabled: state.isNextDisabled,
   user: state.user
 })
+
+// ModalStepper.propTypes = {
+//   close: PropTypes.func.isRequired,
+//   open: PropTypes.bool.isRequired,
+//   step: PropTypes.number.isRequired,
+//   nextStep: PropTypes.func.isRequired,
+//   previousStep: PropTypes.func.isRequired,
+//   addGeopoint: PropTypes.func.isRequired,
+//   addHirer: PropTypes.func.isRequired,
+//   addPic: PropTypes.func.isRequired,
+//   addWorker: PropTypes.func.isRequired,
+//   getWorkers: PropTypes.func.isRequired,
+//   stageUser: PropTypes.func.isRequired,
+//   user: PropTypes.shape({
+//     uid: PropTypes.string
+//   }).isRequired,
+// }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ModalStepper)

@@ -1,8 +1,8 @@
 import React from 'react'
 import moment from "moment"
 import { database } from "./firebase"
-import { getUsers } from "./store"
 import {Button} from "@material-ui/core";
+import * as firebase from 'firebase'
 
 const getDistance = (place1, place2) => {
   const toRad = x => x * Math.PI / 180

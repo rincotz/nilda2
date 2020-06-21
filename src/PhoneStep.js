@@ -1,8 +1,9 @@
 import React from "react"
+import PropTypes from 'prop-types'
 import * as firebase from "firebase/app"
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 
-export default props => {
+const PhoneStep = props => {
   return (
     <div>
       <StyledFirebaseAuth
@@ -30,3 +31,11 @@ export default props => {
     </div>
   )
 }
+
+// PhoneStep.propTypes = {
+//   close: PropTypes.func.isRequired,
+//   nextStep: PropTypes.func.isRequired,
+//   stageUser: PropTypes.func.isRequired,
+// }
+
+export default PhoneStep

@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from "react"
+import PropTypes from 'prop-types'
 import { BirthInput, IdInput } from "./masks";
 import validator from "./validator"
 import TextField from "@material-ui/core/TextField"
@@ -11,12 +12,12 @@ import Button from "@material-ui/core/Button"
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
-const PersonalInfo = props => {
+const PersonalInfoStep = props => {
   const [state, setState] = useState({
     atividade: props.user.atividade || '',
     nome: props.user.nome || '',
     genero: props.user.genero || '',
-    nascimento: props.user.nascimento || '',
+    nascimentoDDMMAAAA: props.user.nascimentoDDMMAAAA || '',
     cpf: props.user.cpf || '',
     email: props.user.email || '',
     senha: ''
@@ -24,7 +25,7 @@ const PersonalInfo = props => {
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const onChange = e => setState({ ...state, [e.target.name]: e.target.value })
 
-  const formComplete = state.atividade && state.nome && !validator.nome(state.nome) && state.nascimento && !validator.nascimento(state.nascimento) && state.cpf && !validator.cpf(state.cpf) && state.email && !validator.email(state.email) && state.senha && !validator.senha(state.senha)
+  const formComplete = state.atividade && state.nome && !validator.nome(state.nome) && state.nascimentoDDMMAAAA && !validator.nascimento(state.nascimentoDDMMAAAA) && state.cpf && !validator.cpf(state.cpf) && state.email && !validator.email(state.email) && state.senha && !validator.senha(state.senha)
   const send = () => {
     if (formComplete) {
       props.stageUser({ ...props.user, ...state })
@@ -94,13 +95,13 @@ const PersonalInfo = props => {
         </MenuItem>
       </TextField>
       <TextField
-        error={!!validator.nascimento(state.nascimento)}
-        helperText={validator.nascimento(state.nascimento)}
+        error={!!validator.nascimento(state.nascimentoDDMMAAAA)}
+        helperText={validator.nascimento(state.nascimentoDDMMAAAA)}
         variant='outlined'
         onChange={e => onChange(e)}
-        name='nascimento'
+        name='nascimentoDDMMAAAA'
         label='nascimento'
-        value={state.nascimento || ''}
+        value={state.nascimentoDDMMAAAA || ''}
         InputProps={{ inputComponent: BirthInput }}
       />
       <TextField
@@ -157,4 +158,14 @@ const PersonalInfo = props => {
   )
 }
 
-export default PersonalInfo
+// PersonalInfoStep.propTypes = {
+//   previousStep: PropTypes.func.isRequired,
+//   nextStep: PropTypes.func.isRequired,
+//   stageUser: PropTypes.func.isRequired,
+//   user: PropTypes.exact({
+//     uid: PropTypes.string.isRequired,
+//     telefone: PropTypes.string.isRequired
+//   }).isRequired
+// }
+
+export default PersonalInfoStep

@@ -1,4 +1,5 @@
 import React, {useState} from "react"
+import PropTypes from 'prop-types'
 import { makeStyles } from "@material-ui/core/styles"
 import Button from "@material-ui/core/Button"
 
@@ -8,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default props => {
+const ProfilePicStep = props => {
   const [foto, setFoto] = useState('')
   const classes = useStyles()
 
@@ -43,3 +44,21 @@ export default props => {
     </div>
   )
 }
+
+// ProfilePicStep.propTypes = {
+//   nextStep: PropTypes.func.isRequired,
+//   addPic: PropTypes.func.isRequired,
+//   user: PropTypes.exact({
+//     uid: PropTypes.string.isRequired,
+//     telefone: PropTypes.string.isRequired,
+//     atividade: PropTypes.string.isRequired,
+//     nome: PropTypes.string.isRequired,
+//     genero: PropTypes.string.isRequired,
+//     nascimentoDDMMAAAA: PropTypes.string.isRequired,
+//     cpf: PropTypes.string.isRequired,
+//     email: PropTypes.string.isRequired,
+//     senha: PropTypes.string.isRequired
+//   }).isRequired
+// }
+
+export default ProfilePicStep

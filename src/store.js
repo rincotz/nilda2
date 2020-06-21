@@ -1,9 +1,10 @@
 import { createStore, applyMiddleware, compose } from "redux";
 import thunk from 'redux-thunk'
 import { Client } from "@googlemaps/google-maps-services-js/dist";
-import { auth, database, storage, key, analytics, geoponto } from './firebase'
+import { auth, database, storage, key, analytics, geoponto, geofirestore } from './firebase'
 import * as firebase from 'firebase'
 import moment from "moment"
+import 'moment/locale/pt-br'
 
 const NEXT_STEP = 'NEXT_STEP'
 const PREVIOUS_STEP = 'PREVIOUS_STEP'
@@ -18,16 +19,12 @@ const ADD_USER_SUCCESS = 'ADD_USER_SUCCESS'
 const ADD_USER_FAIL = 'ADD_USER_FAIL'
 const DELETE_INCOMPLETE_FAIL = 'DELETE_INCOMPLETE_FAIL'
 const GEOLOCATE_FAIL = 'GEOLOCATE_FAIL'
-const WORKER_AVAILABILITY = 'WORKER_AVAILABILITY'
-const WORKER_AVAILABILITY_FAIL = 'WORKER_AVAILABILITY_FAIL'
-const WORKER_CONVERSION = 'WORKER_CONVERSION'
-const WORKER_CONVERSION_FAIL = 'WORKER_CONVERSION_FAIL'
 
+moment.locale('pt-br')
 
 const initialState = {
   user: {},
   step: 0,
-  isNextDisabled: true
 }
 
 export const nextStep = () => {
@@ -39,18 +36,6 @@ export const nextStep = () => {
 export const previousStep = () => {
   return dispatch => {
     dispatch({ type: PREVIOUS_STEP })
-  }
-}
-
-export const disableNext = () => {
-  return dispatch => {
-    dispatch({ type: DISABLE_NEXT })
-  }
-}
-
-export const enableNext = () => {
-  return dispatch => {
-    dispatch({ type: ENABLE_NEXT })
   }
 }
 
@@ -110,23 +95,102 @@ export const addGeopoint = user => {
       }
     }).then(({ data }) => {
       const { lat, lng } = data.results[0].geometry.location
-      dispatch(stageUser({ ...user, geoponto: geoponto(lat, lng) }))
+      dispatch(stageUser({ ...user, coordinates: geoponto(lat, lng) }))
     }).catch(error => analytics.logEvent(GEOLOCATE_FAIL, { 'user': user.uid, 'error': error.message }))
   }
 }
 
-export const addUser = user => {
+export const addHirer = hirer => {
   return dispatch => {
-    return database.collection(user.atividade).doc(user.uid).set(user)
-      .then(() => {
-        return auth.currentUser.updateEmail(user.email)
-          .then(() => auth.currentUser.updatePassword(user.senha))
-          .then(() => auth.currentUser.updateProfile({ displayName: `${user.atividade} ${user.nome}`, photoURL: user.foto }))
-          .then(() => {
-            analytics.logEvent(ADD_USER_SUCCESS, { 'user': user.uid })
-            return database.collection('incompletos').doc(user.uid).delete()
-          }).catch(error => analytics.logEvent(ADD_USER_FAIL, { 'user': user.uid, 'error': error.message }))
-      })
+    const semana = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom']
+    const definirAgendamentoUnix = () => {
+      const proximoDia = moment({ hour: hirer.horaAgendada, minute: hirer.minAgendado }).weekday(semana.indexOf(hirer.diaAgendado) + 7)
+      const diferenca = proximoDia.diff(moment(), "days")
+      if (diferenca < 6) {
+        return proximoDia.add(7, "days")
+      } else {
+        return proximoDia
+      }
+    }
+    const serviceInfo = () => {
+      const serviceInfoObject = {
+        agendamento: definirAgendamentoUnix().valueOf(),
+        bairro: hirer.bairro,
+        cep: hirer.cep,
+        cidade: hirer.cidade,
+        complemento: hirer.complemento,
+        coordinates: hirer.coordinates,
+        numeroDeComodos: hirer.numeroDeComodos,
+        criada: moment().valueOf(),
+        diaAgendado: hirer.diaAgendado,
+        estado: hirer.estado,
+        foto: hirer.foto || '',
+        numeroDiariasEm4Semanas: hirer.numeroDiariasEm4Semanas,
+        horaAgendada: hirer.horaAgendada,
+        logradouro: hirer.rua,
+        minAgendado: hirer.minAgendado,
+        nascimentoDDMMAAAA: hirer.nascimentoDDMMAAAA,
+        nome: hirer.nome,
+        numero: hirer.numero,
+        pgto: '',
+        status: 'pendente',
+        tipoDeHabitacao: hirer.tipoDeHabitacao,
+        uid: hirer.uid,
+        unixStartOfDay: definirAgendamentoUnix().startOf('day').valueOf(),
+        vencimentoEndOfDay: moment().endOf('day').add(2, 'days').valueOf(),
+      }
+      if (!hirer.dia2Agendado) {
+        return {
+          dia2agendado: hirer.dia2Agendado,
+          ...serviceInfoObject
+        }
+      } else return serviceInfoObject
+    }
+    const hirerInfo = {
+      atividade: 'contratante',
+      avaliacoes: [],
+      horaAgendada: hirer.horaAgendada,
+      bairro: hirer.bairro,
+      cep: hirer.cep,
+      cidade: hirer.cidade,
+      complemento: hirer.complemento,
+      coordinates: hirer.coordinates,
+      cpf: hirer.cpf,
+      criada: moment().valueOf(),
+      numeroDeComodos: hirer.numeroDeComodos,
+      diaAgendado: hirer.diaAgendado,
+      dia2Agendado: hirer.dia2Agendado,
+      email: hirer.email,
+      estado: hirer.estado,
+      foto: hirer.foto || '',
+      numeroDiariasEm4Semanas: hirer.numeroDiariasEm4Semanas,
+      genero: hirer.genero,
+      logradouro: hirer.rua,
+      minAgendado: hirer.minAgendado,
+      nascimentoDDMMAAAA: hirer.nascimentoDDMMAAAA,
+      nome: hirer.nome,
+      numero: hirer.numero,
+      servicos: [],
+      tipoDeHabitacao: hirer.tipoDeHabitacao,
+      uid: hirer.uid,
+      ultimoPgto: ''
+    }
+    const cadastroContratante = () => {
+      database.collection('contratantes').doc(hirer.uid).set({hirerInfo})
+    }
+    const cadastroEmail = () => auth.currentUser.linkWithCredential(firebase.auth.EmailAuthProvider.credential(hirer.email, hirer.senha))
+    const cadastroAuth = () => auth.currentUser.updateProfile({ displayName: `${hirer.atividade} ${hirer.nome}`, photoURL: hirer.foto ||'' })
+    const cadastroServico = () => database.collection('servicos').add(serviceInfo())
+    return cadastroServico()
+      .then(snapshot => {
+        hirerInfo.servicos.push(snapshot.id)
+        const includeServiceSid = database.collection('servicos').doc(snapshot.id).set({ sid: snapshot.id }, { merge: true })
+        return Promise.all([cadastroContratante(), cadastroEmail(), cadastroAuth(), includeServiceSid])
+      }).then(() => {
+        dispatch(stageUser(hirerInfo))
+        analytics.logEvent(ADD_USER_SUCCESS, { 'user': hirer.uid })
+        return database.collection('incompletos').doc(hirer.uid).delete()
+      }).catch(error => analytics.logEvent(ADD_USER_FAIL, { 'user': hirer.uid, 'error': error.message }))
   }
 }
 
@@ -138,55 +202,59 @@ export const addWorker = worker => {
       uid: worker.uid,
       nome: worker.nome,
       genero: worker.genero,
-      nascimento: worker.nascimento,
-      foto: worker.foto,
-      quadro: []
+      coordinates: worker.coordinates,
+      nascimentoDDMMAAAA: worker.nascimentoDDMMAAAA,
+      foto: worker.foto || '',
+      disponibilidade: 4
     }
+    const workerInfo = {
+      agenda: [worker.diasOcup[0] ? 0 : worker.diasLivres[0] ? 2 : 1, worker.diasOcup[1] ? 0 : worker.diasLivres[1] ? 2 : 1, worker.diasOcup[2] ? 0 : worker.diasLivres[2] ? 2 : 1, worker.diasOcup[3] ? 0 : worker.diasLivres[3] ? 2 : 1, worker.diasOcup[4] ? 0 : worker.diasLivres[4] ? 2 : 1, worker.diasOcup[5] ? 0 : worker.diasLivres[5] ? 2 : 1, worker.diasOcup[6] ? 0 : worker.diasLivres[6] ? 2 : 1],
+      atividade: 'diarista',
+      avaliacoes: [],
+      bairro: worker.bairro,
+      cep: worker.cep,
+      cidade: worker.cidade,
+      cnpj: worker.cnpj,
+      complemento: worker.complemento,
+      coordinates: worker.coordinates,
+      cpf: worker.cpf,
+      criada: moment().valueOf(),
+      decT: worker.decT,
+      diasTrab: 0,
+      diasConversao,
+      email: worker.email,
+      estado: worker.estado,
+      ferias: worker.ferias,
+      foto: worker.foto || '',
+      genero: worker.genero,
+      logradouro: worker.rua,
+      nascimentoDDMMAAAA: worker.nascimentoDDMMAAAA,
+      nome: worker.nome,
+      numero: worker.numero,
+      planoSaude: worker.planoSaude,
+      serviços: [],
+      telefone: worker.telefone,
+      uid: worker.uid,
+      validado: false
+    }
+    dispatch(stageUser(workerInfo))
     const cadastroDiarista = () => {
-      database.collection('diaristas').doc(worker.uid).set({
-        agenda: [worker.diasOcup[0] ? 0 : worker.diasLivres[0] ? 2 : 1, worker.diasOcup[1] ? 0 : worker.diasLivres[1] ? 2 : 1, worker.diasOcup[2] ? 0 : worker.diasLivres[2] ? 2 : 1, worker.diasOcup[3] ? 0 : worker.diasLivres[3] ? 2 : 1, worker.diasOcup[4] ? 0 : worker.diasLivres[4] ? 2 : 1, worker.diasOcup[5] ? 0 : worker.diasLivres[5] ? 2 : 1, worker.diasOcup[6] ? 0 : worker.diasLivres[6] ? 2 : 1],
-        atividade: 'diarista',
-        avaliacoes: [],
-        bairro: worker.bairro,
-        cep: worker.cep,
-        cidade: worker.cidade,
-        cnpj: worker.cnpj,
-        complemento: worker.complemento,
-        cpf: worker.cpf,
-        criada: moment().valueOf(),
-        decT: worker.decT,
-        diasTrab: 0,
-        diasConversao,
-        email: worker.email,
-        estado: worker.estado,
-        ferias: worker.ferias,
-        foto: worker.foto,
-        genero: worker.genero,
-        geoponto: worker.geoponto,
-        historico: [],
-        logradouro: worker.rua,
-        nascimento: worker.nascimento,
-        nome: worker.nome,
-        numero: worker.numero,
-        planoSaúde: worker.planoSaude,
-        telefone: worker.telefone,
-        uid: worker.uid
-      })
+      database.collection('diaristas').doc(worker.uid).set(workerInfo)
     }
     const cadastroEmail = () => auth.currentUser.linkWithCredential(firebase.auth.EmailAuthProvider.credential(worker.email, worker.senha))
-    const cadastroAuth = () => auth.currentUser.updateProfile({displayName: `${worker.atividade} ${worker.nome}`, photoURL: worker.foto})
+    const cadastroAuth = () => auth.currentUser.updateProfile({displayName: `${worker.atividade} ${worker.nome}`, photoURL: worker.foto || ''})
     const cadastroDisponibilidade = () => worker.diasLivres.filter((day, index) => {
       const promiseArray = []
-      day && promiseArray.push(database.collection(semana[index]).doc(worker.uid).set(workerCardInfo))
+      day && promiseArray.push(geofirestore.collection(semana[index]).doc(worker.uid).set(workerCardInfo))
       return promiseArray
     })
     const cadastroConversao = () => diasConversao && database.collection('conversao').doc(worker.uid).set({
       diasConversao,
       uid: worker.uid,
       nome: worker.nome,
-      geoponto: worker.geoponto,
+      coordinates: worker.coordinates,
       telefone: worker.telefone,
-      nascimento:worker.nascimento,
+      nascimentoDDMMAAAA:worker.nascimentoDDMMAAAA,
       genero: worker.genero,
       ferias: worker.ferias,
       decT: worker.decT,
@@ -202,9 +270,17 @@ export const addWorker = worker => {
   }
 }
 
-export const getUsers = (userType) => {
-  return database.collection(userType).get()
-    .then(snapshot => console.log(snapshot.docs.map(doc => doc.data())))
+export const getWorkers = hirer => {
+  return dispatch => {
+    const getday = geofirestore.collection(hirer.diaAgendado).near({ center: hirer.coordinates, radius: 10 }).get()
+    const getday2 = hirer.numeroDiariasEm4Semanas === 8 ? geofirestore.collection(hirer.dia2Agendado).near({ center: hirer.coordinates, radius: 10 }).get() : false
+    return Promise.all([getday, getday2])
+      .then(
+        snapshot => snapshot.map(promise => {
+          promise.docs.map(doc => console.log(doc.data()))
+        })
+      )
+  }
 }
 
 const userSubscription = (state = initialState, action) => {

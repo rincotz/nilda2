@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import PropTypes from 'prop-types'
 import TextField from "@material-ui/core/TextField"
 import OutlinedInput from "@material-ui/core/OutlinedInput"
 import IconButton from "@material-ui/core/IconButton"
@@ -9,8 +10,7 @@ import Modal from "@material-ui/core/Modal"
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
-
-export default props => {
+const Login = props => {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -67,3 +67,14 @@ export default props => {
     </Modal>
   )
 }
+
+// Login.propTypes = {
+//   authenticate: PropTypes.func.isRequired,
+//   close: PropTypes.func.isRequired,
+//   open: PropTypes.bool.isRequired,
+//   user: PropTypes.shape({
+//     uid: PropTypes.string
+//   }).isRequired
+// }
+
+export default Login
