@@ -18,6 +18,7 @@ const PersonalInfoStep = props => {
     nome: props.user.nome || '',
     genero: props.user.genero || '',
     nascimentoDDMMAAAA: props.user.nascimentoDDMMAAAA || '',
+    meioDeContatoPreferido: props.user.meioDeContatoPreferido || 'whatsapp',
     cpf: props.user.cpf || '',
     email: props.user.email || '',
     senha: ''
@@ -104,6 +105,31 @@ const PersonalInfoStep = props => {
         value={state.nascimentoDDMMAAAA || ''}
         InputProps={{ inputComponent: BirthInput }}
       />
+      <TextField
+        select
+        variant='outlined'
+        onChange={e => onChange(e)}
+        name='meioDeContatoPreferido'
+        label='contato'
+        value={state.meioDeContatoPreferido || ''}
+      >
+        <MenuItem
+          disabled
+          value=''
+        >
+          Selecione uma opção:
+        </MenuItem>
+        <MenuItem
+          value='whatsapp'
+        >
+          whatsapp
+        </MenuItem>
+        <MenuItem
+          value='sms'
+        >
+          sms
+        </MenuItem>
+      </TextField>
       <TextField
         error={!!validator.cpf(state.cpf)}
         helperText={validator.cpf(state.cpf)}

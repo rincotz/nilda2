@@ -15,6 +15,7 @@ import DateRange from '@material-ui/icons/DateRange'
 import Person from '@material-ui/icons/Person'
 import MeetingRoom from '@material-ui/icons/MeetingRoom'
 import CheckCircle from '@material-ui/icons/CheckCircle'
+import {database} from "firebase";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,7 +46,6 @@ const useStyles = makeStyles(theme => ({
 const ServiceCard = props => {
   const classes = useStyles()
   const periodicidade = {
-    8: 'semanal',
     4: 'semanal',
     2: 'quinzenal',
     1: 'mensal'
@@ -103,9 +103,7 @@ const ServiceCard = props => {
                   title='pic'
                 />
                 <IconButton
-                  onClick={() => {
-                    
-                  }}
+                  onClick={() => props.aceitarDiarista(props.service, props.worker)}
                 >
                   <CheckCircle
                     fontSize='large'

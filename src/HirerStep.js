@@ -17,10 +17,11 @@ const HirerStep = props => {
   })
   const semana = ['seg', 'ter', 'qua', 'qui', 'sex', 'sab', 'dom']
   const onChange = e => setState({ ...state, [e.target.name]: e.target.value })
-  const formComplete = (state.numeroDiariasEm4Semanas === 8 && state.dia2Agendado && state.tipoDeHabitacao && state.numeroDeComodos > 0 && state.horaAgendada && state.diaAgendado) || (state.numeroDiariasEm4Semanas !== 8 && state.numeroDiariasEm4Semanas && state.tipoDeHabitacao && state.numeroDeComodos > 0 && state.horaAgendada && state.diaAgendado)
+  const formComplete = (state.numeroDiariasEm4Semanas && state.tipoDeHabitacao && state.numeroDeComodos > 0 && state.horaAgendada && state.diaAgendado)
   const send = () => {
     if (formComplete) {
       props.addHirer({ ...props.user, ...state })
+      props.nextStep()
     }
   }
 
@@ -40,20 +41,16 @@ const HirerStep = props => {
         >Selecione uma opção:
         </MenuItem>
         <MenuItem
-          value={8}
-        >2x semana
-        </MenuItem>
-        <MenuItem
           value={4}
-        >1x semana
+        >semanal
         </MenuItem>
         <MenuItem
           value={2}
-        >2x mês
+        >quinzenal
         </MenuItem>
         <MenuItem
           value={1}
-        >1x mês
+        >mensal
         </MenuItem>
       </TextField>
       <TextField
@@ -133,24 +130,6 @@ const HirerStep = props => {
         name='diaAgendado'
         label='dia'
         value={state.diaAgendado || ''}
-      >
-        {
-          semana.map((dia, index) => (
-            <MenuItem
-              key={index}
-              value={dia}
-            >{dia}
-            </MenuItem>
-          ))}
-      </TextField>
-      <TextField
-        disabled={state.numeroDiariasEm4Semanas !== 8}
-        select
-        variant='outlined'
-        onChange={e => onChange(e)}
-        name='dia2Agendado'
-        label='dia 2'
-        value={state.dia2Agendado || ''}
       >
         {
           semana.map((dia, index) => (

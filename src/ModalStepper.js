@@ -9,7 +9,8 @@ import {
   addGeopoint,
   addHirer,
   addWorker,
-  getWorkers
+  getWorkers,
+  aceitarDiarista
 } from "./store"
 import { makeStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
@@ -23,6 +24,7 @@ import ProfilePic from "./ProfilePicStep";
 import AddressStep from "./AddressStep";
 import HirerStep from "./HirerStep";
 import WorkerStep from "./WorkerStep";
+import ServiceCardList from "./ServiceCardList";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -43,7 +45,8 @@ const ModalStepper = props => {
     <PersonalInfoStep {...props} />,
     <ProfilePic {...props} />,
     <AddressStep {...props} />,
-    props.user.atividade === 'contratante' ? <HirerStep {...props} /> : <WorkerStep {...props} />
+    props.user.atividade === 'contratante' ? <HirerStep {...props} /> : <WorkerStep {...props} />,
+    props.user.atividade === 'contratante' ? <ServiceCardList {...props} /> : <WorkerStep {...props} />
   ]
   const nextButton = (
     <Button
@@ -97,13 +100,15 @@ const mapDispatchToProps = dispatch => ({
   addGeopoint: userObject => dispatch(addGeopoint(userObject)),
   addHirer: userObject => dispatch(addHirer(userObject)),
   addWorker: userObject => dispatch(addWorker(userObject)),
-  getWorkers: userObject => dispatch(getWorkers(userObject))
+  getWorkers: userObject => dispatch(getWorkers(userObject)),
+  aceitarDiarista: (serviceInfo, worker) => dispatch(aceitarDiarista(serviceInfo, worker))
 })
 
 const mapStateToProps = state => ({
   step: state.step,
   isNextDisabled: state.isNextDisabled,
-  user: state.user
+  user: state.user,
+  service: state.service
 })
 
 // ModalStepper.propTypes = {

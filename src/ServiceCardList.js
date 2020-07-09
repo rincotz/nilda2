@@ -6,14 +6,11 @@ import CircularProgress from "@material-ui/core/CircularProgress"
 export default props => {
   const [loading, setLoading] = useState(true)
   const [workers, setWorkers] = useState([])
-  const getWorkers = () => {
-    return geofirestore.collection('seg').near({ center: geoponto(-23.5842437, -46.7314929), radius: 10 }).get()
-  }
+
   useEffect(() => {
-    getWorkers().then(workersData => {
-      workersData.docs.map(worker => (
-        setWorkers([...workers, {...worker.data(), distance: worker.distance}])
-      ))
+    props.getWorkers(props.service).then(workersData => {
+      const availableWorkers = workersData.filter(worker => worker.cnpjVerificado && worker.disponibilidade >= props.service.numeroDiariasEm4Semanas)
+      setWorkers(availableWorkers.sort((xDistance, yDistance) => xDistance - yDistance))
       setLoading(false)
     })
   }, [])
@@ -26,6 +23,7 @@ export default props => {
         : workers.map(worker => <ServiceCard
             key={worker.uid}
             worker={worker}
+            {...props}
           />)
       }
     </div>
